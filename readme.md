@@ -4,7 +4,7 @@
 
 ![Logo](https://www.marknotes.fr/assets/images/notes.jpg)
 
-Description
+## Description
 
 PHP installation script for [marknotes](https://github.com/cavo789/marknotes).
 
