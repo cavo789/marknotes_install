@@ -184,6 +184,62 @@ class Files
 
 		return $wCount;
 	}
+
+	/**
+	* Be sure that every folder is well with chmod 755 and files with 644	
+	* @param type $directory
+	* @param type $arrIgnore
+	*/
+	public function resetPermissions($directory, $arrIgnore = array('.','..')) 
+	{
+	
+	   // Check if the path exists
+	   if (!file_exists ($directory)) {
+		    return(false);
+		}
+	
+	   // Make sure that /aesecure has 0755 rights.
+	   if (is_dir($directory)) {
+		   chmod($directory, octdec('755'));
+	   }
+	
+	   $handle = opendir($directory);
+	
+	   if ($handle) {
+	
+	      while (false !== ($file = readdir($handle))) {
+	
+	         if (!(in_array($file, $arrIgnore))) {
+	            
+	            // Process subfolders
+	            if (is_dir($directory.DS.$file)) {
+					 self::resetPermissions($directory.'/'.$file,$arrIgnore);
+				 }
+	           
+	            // Get current chmod
+	            $fperm=substr(sprintf('%o', (fileperms($directory.DS.$file))),-4);
+	            
+	            // Now, change chmod if needed
+	            if (is_dir($directory.DS.$file)) {
+	               if ($fperm!=='0755') {
+					    @chmod($directory.DS.$file, octdec('755'));
+					}
+				} else {
+	               // It's a file
+	               if ($fperm!=='0644') {
+					    @chmod($directory.DS.$file, octdec('644'));
+					}
+			   } // if (is_dir($directory.DS.$file)) 
+	                                  
+	         } // if (!(in_array($file, $arrIgnore)))
+	
+	      } // while
+	
+	      closedir($handle);
+	
+	   } // if ($handle)
+	
+	} // function SetCorrectPermissions()
 }
 
 class Download
@@ -445,6 +501,11 @@ class Zip
 					if ($bReturn) {
 						$bZip = $zip->extractTo(static::$sFolderName);
 						$zip->close();
+						
+						$aeFiles = new \MarkNotes\Files();
+						$aeFiles->resetPermissions(static::$sFolderName);
+						unset($aeFiles);
+						
 					} else {
 						self::showErrorPage(ERROR_ZIP_FAILED);
 					}
@@ -661,6 +722,8 @@ class Install
 		if (is_dir($badFolder = $path.basename($path).DS)) {
 			// Yes : the repo_master folder is repeated :
 			// so move all files and folders one folder up
+			$aeFiles->rmove($badFolder, $path);
+		} elseif (is_dir($badFolder = $path.APP_NAME.'-'.basename($path).DS)) {
 			$aeFiles->rmove($badFolder, $path);
 		}
 
