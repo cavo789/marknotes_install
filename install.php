@@ -9,7 +9,7 @@ namespace MarkNotes;
 // -------------------------------------------------
 // Constants to initialize
 // 		URL to the ZIP to download
-define('URL', 'https://github.com/cavo789/marknotes/archive/marknotes-master.zip');
+define('URL', 'https://github.com/cavo789/marknotes/archive/master.zip');
 // 		Name of the application
 define('APP_NAME', 'marknotes');
 // 		Application's logo
@@ -773,11 +773,11 @@ class Install
 			self::showErrorPage($wReturn, $sErrorMsg);
 		} else {
 			// The package ZIP file is there...
-			//if (self::unzip()) {
-			//	if (self::finalize()) {
+			if (self::unzip()) {
+				if (self::finalize()) {
 					self::showPostInstall();
-//				}
-//			}
+				}
+			}
 		} // if (!self::zipExists())
 
 		return true;
