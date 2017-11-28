@@ -1,6 +1,6 @@
 <?php
 
-/**************************
+/************************** 
 ****** REQUIRES PHP 7 *****
 ***************************/
 
@@ -10,10 +10,14 @@ namespace MarkNotes;
 // Constants to initialize
 // 		URL to the ZIP to download
 define('URL', 'https://github.com/cavo789/marknotes/archive/master.zip');
+//		Once unzipped, the file here above will create a new folder
+//		Most probably "reponame" followed by "-master".
+//		Please specify the name here
+define('FOLDER_NAME', 'marknotes-master');
 // 		Name of the application
 define('APP_NAME', 'marknotes');
 // 		Application's logo
-define('LOGO', 'http://marknotes.fr/assets/images/marknotes.png');
+define('LOGO', 'https://marknotes.fr/assets/images/marknotes.png');
 // 		Debug mode enabled (1) or not (0)
 define('DEBUG', 0);
 //		The minimum PHP version on the server
@@ -85,7 +89,7 @@ class Helpers
 
 		$host = isset($host) ? rtrim(str_replace(DS, '/', $host), '/') : $_SERVER['SERVER_NAME'].$port;
 
-		$return = $protocol.'://'.$host.dirname($_SERVER['PHP_SELF']).'/';
+		$return = rtrim($protocol.'://'.$host.dirname($_SERVER['PHP_SELF']),'/').'/';
 
 		return $return;
 	}
@@ -109,7 +113,7 @@ class Files
 
 		// If the destination directory does not exist create it
 		if (!is_dir($dest)) {
-			if (!mkdir($dest, 755)) {
+			if (!mkdir($dest, 0755)) {
 				// If the destination directory could not
 				// be created stop processing
 				return false;
@@ -203,7 +207,7 @@ class Files
 	
 	   // Make sure that /aesecure has 0755 rights.
 	   if (is_dir($directory)) {
-		   chmod($directory, octdec('755'));
+		   chmod($directory, 0755);
 	   }
 	
 	   $handle = opendir($directory);
@@ -225,12 +229,12 @@ class Files
 	            // Now, change chmod if needed
 	            if (is_dir($directory.DS.$file)) {
 	               if ($fperm!=='0755') {
-					    @chmod($directory.DS.$file, octdec('755'));
+					    @chmod($directory.DS.$file, 0755);
 					}
 				} else {
 	               // It's a file
 	               if ($fperm!=='0644') {
-					    @chmod($directory.DS.$file, octdec('644'));
+					    @chmod($directory.DS.$file, 0644);
 					}
 			   } // if (is_dir($directory.DS.$file)) 
 	                                  
@@ -341,7 +345,7 @@ class Download
 				$wError = self::ERROR_CURL;
 			} else {
 				@fclose($fp);
-				@chmod(static::$sFileName, octdec('644'));
+				@chmod(static::$sFileName, 0644);
 			}
 
 			if ($wError===0) {
@@ -387,7 +391,7 @@ class Download
 							$wError = self::ERROR_CURL;
 						}
 
-						@chmod(static::$sFileName, octdec('644'));
+						@chmod(static::$sFileName, 0644);
 					} // if (!curl_setopt($ch, CURLOPT_URL, static::$sSourceURL))
 				} // if ($ch)
 			} // if ($wError===0)
@@ -444,7 +448,6 @@ class Zip
 {
 	const ERROR_ZIP_ARCHIVE = 1002;
 	const ERROR_UNWRITABLE_FOLDER = 1003;
-	const ERROR_MKDIR = 1004;
 	const ERROR_ZIP_FAILED = 1005;
 
 	private static $sZIPFileName = '';
@@ -480,42 +483,28 @@ class Zip
 		if (class_exists('ZipArchive')) {
 			// Verify that the parent folder is writable
 			if (!is_writable(dirname(static::$sZIPFileName))) {
-				@chmod(dirname(static::$sZIPFileName), octdec('755'));
+				@chmod(dirname(static::$sZIPFileName), 0755);
 			}
 
 			if (!is_writable(dirname(static::$sZIPFileName))) {
 				return self::ERROR_UNWRITABLE_FOLDER;
 			}
 
-			// Try to create the destination folder
-			if (!(is_dir(static::$sFolderName))) {
-				mkdir(static::$sFolderName, 0755);
-			}
+			// Do it, unzip
+			$zip = new \ZipArchive;
 
-			if (is_dir(static::$sFolderName)) {
-				// Do it, unzip
-				$zip = new \ZipArchive;
+			try {
+				@set_time_limit(0);
 
-				try {
-					@set_time_limit(0);
+				$bReturn = $zip->open(static::$sZIPFileName);
 
-					$bReturn = $zip->open(static::$sZIPFileName);
-
-					if ($bReturn) {
-						$bZip = $zip->extractTo(static::$sFolderName);
-						$zip->close();
-						
-						$aeFiles = new \MarkNotes\Files();
-						$aeFiles->resetPermissions(static::$sFolderName);
-						unset($aeFiles);
-						
-					} else {
-						self::showErrorPage(ERROR_ZIP_FAILED);
-					}
-				} catch (Exception $e) {
+				if ($bReturn) {
+					$bZip = $zip->extractTo('.');
+					$zip->close();					
+				} else {
+					self::showErrorPage(ERROR_ZIP_FAILED);
 				}
-			} else {
-				return self::ERROR_MKDIR;
+			} catch (Exception $e) {
 			}
 		} else {
 			// Class not loaded
@@ -557,13 +546,6 @@ class Zip
 			'send back the unzipped folder to your FTP site.</p>'.
 			'<p>Finally go back to your browser and refresh this '.
 			'so the installation process can continue.</p>';
-		} elseif ($code==self::ERROR_MKDIR) {
-			$sReturn = '<p>It\'s impossible to create the '.
-			static::$sFolderName.' folder</p>'.
-			'<p>Your website root folder is write protected and '.
-			'doesn\'t allow the creation of a folder. '.
-			'Please create the folder yourself. It\'s name should '.
-			'be '.static::$sFolderName.'</p>';
 		}
 
 		return $sReturn;
@@ -601,8 +583,7 @@ class Install
 		static::$Zip = static::$sCurrentFolder.basename(URL);
 
 		// Folder where the application should be installed
-		$tmp = \MarkNotes\Files::removeExtension(basename(URL));
-		static::$sApplicationFolder = self::$sCurrentFolder.$tmp.DS;
+		static::$sApplicationFolder = self::$sCurrentFolder.FOLDER_NAME.DS;
 
 		return true;
 	}
@@ -715,34 +696,44 @@ class Install
 
 		// The application path is f.i.
 		// /public_html/site/repo_master/
-		$path = static::$sApplicationFolder;
+		$path = static::$sApplicationFolder;	
 
 		$aeFiles = new \MarkNotes\Files();
 
-		// Verify that, after the unzip, we don't have
-		// /public_html/site/repo_master/repo_master/(all files)
-		// i.e. the "repo_master" foldername twice
-		if (is_dir($badFolder = $path.basename($path).DS)) {
-			// Yes : the repo_master folder is repeated :
-			// so move all files and folders one folder up
-			$aeFiles->rmove($badFolder, $path);
-		} elseif (is_dir($badFolder = $path.APP_NAME.'-'.basename($path).DS)) {
-			$aeFiles->rmove($badFolder, $path);
-		}
-
-		// If there is a /dist folder, check if that folder
-		// contains the distribution files (this is the case
-		// where there are more than one file in that folder)
+		
+		// So, here, we've a appname-master folder with/
+		// perhaps a /dist folder and a /src folder 
+		// (this is depends of course of how the repository
+		// has been created by the programmer)
+		
+		// Consider that the folder with the source is called
+		// /src. But, verify if there is a /dist folder, 
+		// if so, check if that folder contains files (more 
+		// than one). 
+		// If yes => the source folder will be /dist
+		// If no  => the source folder will be /src
+		$srcFolder = static::$sApplicationFolder.'src';
+		
 		if (is_dir($dist = static::$sApplicationFolder.'dist')) {
-			if ($aeFiles->countFiles($dist) <= 1) {
-				// The folder contains one file (or even none);
-				// remove that folder
-				$aeFiles->rrmdir($dist);
+			if ($aeFiles->countFiles($dist) > 1) {
+				$srcFolder = $dist;
 			}
+		}		
+		
+		// Now, move all these files ($srcFolder) to the 
+		// current folder i.e. the one where the install.php
+		// script has been fired
+		
+		if (is_dir($srcFolder)) {
+			$aeFiles->rmove($srcFolder, static::$sCurrentFolder);
 		}
-
+		
+		// This done, the appname-master folder can be removed
+		// No more needed
+		$aeFiles->rrmdir(static::$sApplicationFolder);
+		
 		unset($aeFiles);
-
+		
 		// Kill this file and the ZIP file too
 		if (!DEBUG) {
 			try {
@@ -760,13 +751,10 @@ class Install
 		// Try to find the index.php page
 		// First in the root application folder, if not found,
 		// in the /dist folder and if still not, in the /src folder
-		$path = static::$sApplicationFolder;
-
-		if (!file_exists($fname = $path.'index.php')) {
-			if (!file_exists($fname = $path.'dist'.DS.'index.php')) {
-				$fname = $path.'src'.DS.'index.php';
-			}
-		}
+		$path = static::$sCurrentFolder;
+		
+		// Path to the index.php file
+		$index = $path.'index.php';
 
 		// Derive the URL for the application
 
@@ -782,15 +770,15 @@ class Install
 		// And remove that part to the application folder
 		// so we just keep the name of the folder where the
 		// application has been installed
-		$site = str_replace($sScriptFolder.DS, '', $fname);
+		$site = str_replace($sScriptFolder.DS, '', $index);
 
 		$appURL = str_replace(DS, '/', $sURL.$site);
-
+		
 		// Get the template
 		$sMsg = '<h1 class="success">Installation of '.APP_NAME.' '.
 			'is successfull</h1>'.
 			'<p>The application has been successfully installed '.
-			'in the folder '.static::$sApplicationFolder.'.</p>'.
+			'in the folder '.static::$sCurrentFolder.'.</p>'.
 			'<p>You can use '.APP_NAME.' from now : '.
 			'<a href="'.$appURL.'">'.$appURL.'</a></p>'.
 			'<p><em>This '.basename(__FILE__).' installation script '.
@@ -830,7 +818,7 @@ class Install
 
 			unset($aeDownload);
 		} // if (!self::zipExists())
-
+			
 		if (!self::zipExists()) {
 			// The download has failed
 			if (($wReturn == 0) && ($sErrorMsg == '')) {
@@ -840,7 +828,7 @@ class Install
 		} else {
 			// The package ZIP file is there...
 			if (self::unzip()) {
-				if (self::finalize()) {
+				if (self::finalize()) {	
 					self::showPostInstall();
 				}
 			}
