@@ -15,7 +15,7 @@ define('APP_NAME', 'marknotes');
 // 		Application's logo
 define('LOGO', 'http://marknotes.fr/assets/images/marknotes.png');
 // 		Debug mode enabled (1) or not (0)
-define('DEBUG', 1);
+define('DEBUG', 0);
 //		The minimum PHP version on the server
 define('PHP_MIN_VERSION', '7.0');
 //
@@ -178,8 +178,11 @@ class Files
 		$wCount = 0;
 
 		if (is_dir($folder)) {
-			$fi = new \FilesystemIterator($folder, \FilesystemIterator::SKIP_DOTS);
-			$wCount =  iterator_count($fi);
+			try {
+				$fi = new \FilesystemIterator($folder, \FilesystemIterator::SKIP_DOTS);
+				$wCount =  iterator_count($fi);	
+			} catch (\Exception $e) {
+			}
 		}
 
 		return $wCount;
