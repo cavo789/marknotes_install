@@ -9,11 +9,13 @@ namespace MarkNotes;
 // -------------------------------------------------
 // Constants to initialize
 // 		URL to the ZIP to download
-define('URL', 'https://github.com/cavo789/marknotes/archive/master.zip');
+define('URL_MASTER', 'https://github.com/cavo789/marknotes/archive/master.zip');
+define('URL_DEV', 'https://github.com/cavo789/marknotes/archive/development.zip');
 //		Once unzipped, the file here above will create a new folder
 //		Most probably "reponame" followed by "-master".
 //		Please specify the name here
-define('FOLDER_NAME', 'marknotes-master');
+define('FOLDER_NAME_MASTER', 'marknotes-master');
+define('FOLDER_NAME_DEV', 'marknotes-development');
 // 		Name of the application
 define('APP_NAME', 'marknotes');
 // 		Application's logo
@@ -563,14 +565,18 @@ class Install
 	private static $sApplicationFolder = '';
 	// ZIP filename : based on the URL constant, just the filename
 	private static $Zip = '';
+	
+	private static $version = '';
 
-	public function __construct()
+	public function __construct(string $version)
 	{
 		// Be sure that the server match the minimum
 		// PHP version
 		if (version_compare(phpversion(), PHP_MIN_VERSION, '<')) {
 			self::ShowErrorPage(self::ERROR_PHP_VERSION);
 		}
+		
+		static::$version = $version;
 
 		Helpers::setDebuggingMode(DEBUG);
 
@@ -580,10 +586,12 @@ class Install
 		static::$sCurrentFolder = str_replace('/', DS, dirname(static::$sCurrentFolder)).DS;
 
 		// Target filename (f.i. /public_html/marknotes/master.zip
-		static::$Zip = static::$sCurrentFolder.basename(URL);
+		$url = ((static::$version=='dev') ? URL_DEV : URL_MASTER);
+		static::$Zip = static::$sCurrentFolder.basename($url);
 
 		// Folder where the application should be installed
-		static::$sApplicationFolder = self::$sCurrentFolder.FOLDER_NAME.DS;
+		$folder = ((static::$version=='dev') ? FOLDER_NAME_DEV : FOLDER_NAME_MASTER);
+		static::$sApplicationFolder = self::$sCurrentFolder.$folder.DS;
 
 		return true;
 	}
@@ -737,7 +745,7 @@ class Install
 		// Kill this file and the ZIP file too
 		if (!DEBUG) {
 			try {
-				unlink(__FILE__);
+//				unlink(__FILE__);
 				unlink(self::$Zip);
 			} catch (Exception $e) {
 			}
@@ -790,9 +798,77 @@ class Install
 
 		return;
 	}
+	
+	private function chooseVersion()
+	{
+		$sForm = 
+			'<h1 class="success">Installation of '.APP_NAME.'</h1>'.
+			'<p>Please select the version to install :</p>'.
+			'<div class="form-check">'.
+				'<input class="form-check-input" type="radio" '.
+				'name="version" id="versionMaster" value="master">&nbsp;'.
+				'<label class="form-check-label" for="versionMaster">'.
+				'Master version'.
+				'</label>'.
+			'</div>'.
+			'<div class="form-check">'.
+				'<input class="form-check-input" type="radio" '.
+				'name="version" id="versionDev" value="development">&nbsp;'.
+				'<label class="form-check-label" for="versionDev">'.
+				'Development version (<strong>can be unstable</strong>)'.
+				'</label>'.
+			'</div>'.
+			'<div id="buttons" style="display:none;">'.
+				'<hr/>'.
+				'<p>Then click on the button to launch the installation</p>'.
+				'<div id="divMaster">'.
+					'<button id="btnMaster">Install the <strong>Master</strong> version</button>'.
+				'</div>'.
+				'<div id="divDev" style="display:none;">'.
+					'<button id="btnDev">Install the <strong>Development</strong> version</button>'.
+				'</div>'.
+			'</div>'.
+			'<div id="wait" style="display:none;">'.
+				'<hr/>'.
+				'<p>The installation process has been started. Please wait...</p>'.
+			'</div>'.
+			'<script>'.
+				'function show(id) {'.PHP_EOL.
+					'document.getElementById(id).style.display="block";'.PHP_EOL.
+				'}'.PHP_EOL.
+				'function hide(id) {'.PHP_EOL.
+					'document.getElementById(id).style.display="none";'.PHP_EOL.
+				'}'.PHP_EOL.
+				'function doIt(version) {'.PHP_EOL.
+					'document.getElementById("wait").style.display="block";'.PHP_EOL.
+					'document.location.search="version="+version;'.
+				'}'.PHP_EOL.
+				// Click on versionMaster
+				'clik = document.createAttribute("onclick");'.PHP_EOL.
+				'clik.nodeValue = "show(\"buttons\");hide(\"divDev\");show(\"divMaster\");";'.PHP_EOL.
+				'document.getElementById("versionMaster").setAttributeNode(clik);'.PHP_EOL.
+				// Click on versionDev
+				'clik = document.createAttribute("onclick");'.PHP_EOL.
+				'clik.nodeValue = "show(\"buttons\");hide(\"divMaster\");show(\"divDev\");";'.PHP_EOL.
+				'document.getElementById("versionDev").setAttributeNode(clik);'.PHP_EOL.
+				// Button Master
+				'clik = document.createAttribute("onclick");'.PHP_EOL.				
+				'clik.nodeValue = "doIt(\"master\");";'.PHP_EOL.
+				'document.getElementById("btnMaster").setAttributeNode(clik);'.PHP_EOL.
+				// Button Dev
+				'clik = document.createAttribute("onclick");'.PHP_EOL.
+				'clik.nodeValue = "doIt(\"dev\");";'.PHP_EOL.
+				'document.getElementById("btnDev").setAttributeNode(clik);'.PHP_EOL.
+			'</script>';
+			
+		$sHTML = str_replace('%CONTENT%', $sMsg.$sForm, self::getHTMLPage());
+		die($sHTML);
+
+		return;
+	}
 
 	// Run the installation process
-	public function run()
+	private function startInstallation()
 	{
 		$wReturn = 0;
 		$sErrorMsg = '';
@@ -804,7 +880,10 @@ class Install
 				// Try to download
 				$aeDownload = new \MarkNotes\Download(APP_NAME);
 				$aeDownload->debugMode(DEBUG);
-				$aeDownload->setURL(URL);
+				
+				$url = ((static::$version=='dev') ? URL_DEV : URL_MASTER);
+				$aeDownload->setURL($url);
+				
 				$aeDownload->setFileName(static::$Zip);
 				$wReturn = $aeDownload->download();
 
@@ -836,13 +915,30 @@ class Install
 
 		return true;
 	}
+
+	// Run the installation process
+	public function run()
+	{
+		if (static::$version == '') {
+			self::chooseVersion();
+		} else {
+			self::startInstallation();
+		}
+		return true;
+	}
 }
 
 /***********************
  ***** Entry point *****
  **********************/
+ 
+	$_GET = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
+	$version = strtolower($_GET['version']??'');
+	if(!in_array($version, array('dev','master'))) {
+		$version = '';
+	}
 
-// Run the installation process
-$aeInstall = new \MarkNotes\Install();
-$aeInstall->run();
-unset($aeInstall);
+	// Run the installation process
+	$aeInstall = new \MarkNotes\Install($version);
+	$aeInstall->run();
+	unset($aeInstall);
