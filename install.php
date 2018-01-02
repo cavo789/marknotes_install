@@ -745,7 +745,7 @@ class Install
 		// Kill this file and the ZIP file too
 		if (!DEBUG) {
 			try {
-//				unlink(__FILE__);
+				unlink(__FILE__);
 				unlink(self::$Zip);
 			} catch (Exception $e) {
 			}
@@ -803,7 +803,7 @@ class Install
 	{
 		$sForm = 
 			'<h1 class="success">Installation of '.APP_NAME.'</h1>'.
-			'<p>Please select the version to install :</p>'.
+			'<p>1. Please select the version to install :</p>'.
 			'<div class="form-check">'.
 				'<input class="form-check-input" type="radio" '.
 				'name="version" id="versionMaster" value="master">&nbsp;'.
@@ -820,7 +820,7 @@ class Install
 			'</div>'.
 			'<div id="buttons" style="display:none;">'.
 				'<hr/>'.
-				'<p>Then click on the button to launch the installation</p>'.
+				'<p>2. Then click on the button to launch the installation</p>'.
 				'<div id="divMaster">'.
 					'<button id="btnMaster">Install the <strong>Master</strong> version</button>'.
 				'</div>'.
@@ -830,7 +830,7 @@ class Install
 			'</div>'.
 			'<div id="wait" style="display:none;">'.
 				'<hr/>'.
-				'<p>The installation process has been started. Please wait...</p>'.
+				'<p>3. The installation process has been started. Please wait, it will take a few seconds, the time needed to download the package, unzip it and prepare the site.</p>'.
 			'</div>'.
 			'<script>'.
 				'function show(id) {'.PHP_EOL.
