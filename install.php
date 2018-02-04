@@ -15,7 +15,7 @@ define('URL_DEV', 'https://github.com/cavo789/marknotes/archive/Development.zip'
 //		Most probably "reponame" followed by "-master".
 //		Please specify the name here
 define('FOLDER_NAME_MASTER', 'marknotes-master');
-define('FOLDER_NAME_DEV', 'marknotes-development');
+define('FOLDER_NAME_DEV', 'marknotes-Development');
 // 		Name of the application
 define('APP_NAME', 'marknotes');
 // 		Application's logo
