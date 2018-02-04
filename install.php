@@ -10,7 +10,7 @@ namespace MarkNotes;
 // Constants to initialize
 // 		URL to the ZIP to download
 define('URL_MASTER', 'https://github.com/cavo789/marknotes/archive/master.zip');
-define('URL_DEV', 'https://github.com/cavo789/marknotes/archive/development.zip');
+define('URL_DEV', 'https://github.com/cavo789/marknotes/archive/Development.zip');
 //		Once unzipped, the file here above will create a new folder
 //		Most probably "reponame" followed by "-master".
 //		Please specify the name here
