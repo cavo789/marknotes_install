@@ -20,7 +20,7 @@ Get a copy of this ’install.php’ script and save it on your localhost websit
 
 Then just access it by URL like, for instance, ’http://localhost/marknotes/install.php’.
 
-![Install](images/install.png)
+![Install](https://raw.githubusercontent.com/cavo789/marknotes_install/master/image/install.png)
 
 Tadaaaa :tada:, it’s done. Was easy no?
 
