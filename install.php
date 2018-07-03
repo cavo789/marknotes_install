@@ -1,6 +1,6 @@
 <?php
 
-/************************** 
+/**************************
 ****** REQUIRES PHP 7 *****
 ***************************/
 
@@ -186,7 +186,7 @@ class Files
 		if (is_dir($folder)) {
 			try {
 				$fi = new \FilesystemIterator($folder, \FilesystemIterator::SKIP_DOTS);
-				$wCount =  iterator_count($fi);	
+				$wCount =  iterator_count($fi);
 			} catch (\Exception $e) {
 			}
 		}
@@ -195,59 +195,59 @@ class Files
 	}
 
 	/**
-	* Be sure that every folder is well with chmod 755 and files with 644	
+	* Be sure that every folder is well with chmod 755 and files with 644
 	* @param type $directory
 	* @param type $arrIgnore
 	*/
-	public function resetPermissions($directory, $arrIgnore = array('.','..')) 
+	public function resetPermissions($directory, $arrIgnore = array('.','..'))
 	{
-	
-	   // Check if the path exists
-	   if (!file_exists ($directory)) {
-		    return(false);
+
+		// Check if the path exists
+		if (!file_exists ($directory)) {
+			return(false);
 		}
-	
-	   // Make sure that /aesecure has 0755 rights.
-	   if (is_dir($directory)) {
-		   chmod($directory, 0755);
-	   }
-	
-	   $handle = opendir($directory);
-	
-	   if ($handle) {
-	
-	      while (false !== ($file = readdir($handle))) {
-	
-	         if (!(in_array($file, $arrIgnore))) {
-	            
-	            // Process subfolders
-	            if (is_dir($directory.DS.$file)) {
+
+		// Make sure that /aesecure has 0755 rights.
+		if (is_dir($directory)) {
+			chmod($directory, 0755);
+		}
+
+		$handle = opendir($directory);
+
+		if ($handle) {
+
+		  while (false !== ($file = readdir($handle))) {
+
+			 if (!(in_array($file, $arrIgnore))) {
+
+				// Process subfolders
+				if (is_dir($directory.DS.$file)) {
 					 self::resetPermissions($directory.'/'.$file,$arrIgnore);
 				 }
-	           
-	            // Get current chmod
-	            $fperm=substr(sprintf('%o', (fileperms($directory.DS.$file))),-4);
-	            
-	            // Now, change chmod if needed
-	            if (is_dir($directory.DS.$file)) {
-	               if ($fperm!=='0755') {
-					    @chmod($directory.DS.$file, 0755);
+
+				// Get current chmod
+				$fperm=substr(sprintf('%o', (fileperms($directory.DS.$file))),-4);
+
+				// Now, change chmod if needed
+				if (is_dir($directory.DS.$file)) {
+					if ($fperm!=='0755') {
+						@chmod($directory.DS.$file, 0755);
 					}
 				} else {
-	               // It's a file
-	               if ($fperm!=='0644') {
-					    @chmod($directory.DS.$file, 0644);
+					// It's a file
+					if ($fperm!=='0644') {
+						@chmod($directory.DS.$file, 0644);
 					}
-			   } // if (is_dir($directory.DS.$file)) 
-	                                  
-	         } // if (!(in_array($file, $arrIgnore)))
-	
-	      } // while
-	
-	      closedir($handle);
-	
-	   } // if ($handle)
-	
+				} // if (is_dir($directory.DS.$file))
+
+			 } // if (!(in_array($file, $arrIgnore)))
+
+		  } // while
+
+		  closedir($handle);
+
+		} // if ($handle)
+
 	} // function SetCorrectPermissions()
 }
 
@@ -502,7 +502,7 @@ class Zip
 
 				if ($bReturn) {
 					$bZip = $zip->extractTo('.');
-					$zip->close();					
+					$zip->close();
 				} else {
 					self::showErrorPage(ERROR_ZIP_FAILED);
 				}
@@ -565,7 +565,7 @@ class Install
 	private static $sApplicationFolder = '';
 	// ZIP filename : based on the URL constant, just the filename
 	private static $Zip = '';
-	
+
 	private static $version = '';
 
 	public function __construct(string $version)
@@ -575,7 +575,7 @@ class Install
 		if (version_compare(phpversion(), PHP_MIN_VERSION, '<')) {
 			self::ShowErrorPage(self::ERROR_PHP_VERSION);
 		}
-		
+
 		static::$version = $version;
 
 		Helpers::setDebuggingMode(DEBUG);
@@ -704,44 +704,43 @@ class Install
 
 		// The application path is f.i.
 		// /public_html/site/repo_master/
-		$path = static::$sApplicationFolder;	
+		$path = static::$sApplicationFolder;
 
 		$aeFiles = new \MarkNotes\Files();
 
-		
 		// So, here, we've a appname-master folder with/
-		// perhaps a /dist folder and a /src folder 
+		// perhaps a /dist folder and a /src folder
 		// (this is depends of course of how the repository
 		// has been created by the programmer)
-		
+
 		// Consider that the folder with the source is called
-		// /src. But, verify if there is a /dist folder, 
-		// if so, check if that folder contains files (more 
-		// than one). 
+		// /src. But, verify if there is a /dist folder,
+		// if so, check if that folder contains files (more
+		// than one).
 		// If yes => the source folder will be /dist
 		// If no  => the source folder will be /src
 		$srcFolder = static::$sApplicationFolder.'src';
-		
+
 		if (is_dir($dist = static::$sApplicationFolder.'dist')) {
 			if ($aeFiles->countFiles($dist) > 1) {
 				$srcFolder = $dist;
 			}
-		}		
-		
-		// Now, move all these files ($srcFolder) to the 
+		}
+
+		// Now, move all these files ($srcFolder) to the
 		// current folder i.e. the one where the install.php
 		// script has been fired
-		
+
 		if (is_dir($srcFolder)) {
 			$aeFiles->rmove($srcFolder, static::$sCurrentFolder);
 		}
-		
+
 		// This done, the appname-master folder can be removed
 		// No more needed
 		$aeFiles->rrmdir(static::$sApplicationFolder);
-		
+
 		unset($aeFiles);
-		
+
 		// Kill this file and the ZIP file too
 		if (!DEBUG) {
 			try {
@@ -760,7 +759,7 @@ class Install
 		// First in the root application folder, if not found,
 		// in the /dist folder and if still not, in the /src folder
 		$path = static::$sCurrentFolder;
-		
+
 		// Path to the index.php file
 		$index = $path.'index.php';
 
@@ -781,7 +780,7 @@ class Install
 		$site = str_replace($sScriptFolder.DS, '', $index);
 
 		$appURL = str_replace(DS, '/', $sURL.$site);
-		
+
 		// Get the template
 		$sMsg = '<h1 class="success">Installation of '.APP_NAME.' '.
 			'is successfull</h1>'.
@@ -789,6 +788,10 @@ class Install
 			'in the folder '.static::$sCurrentFolder.'.</p>'.
 			'<p>You can use '.APP_NAME.' from now : '.
 			'<a href="'.$appURL.'">'.$appURL.'</a></p>'.
+			'<p><strong>Last thing: clear your browser\'s cache '.
+			'and, if you are using a server cache (or an '.
+			'optimization system on your hosting), don\'t forget'.
+			'to clear the server cache too.</strong></p>'.
 			'<p><em>This '.basename(__FILE__).' installation script '.
 			'has been removed.</em></p>';
 
@@ -798,10 +801,10 @@ class Install
 
 		return;
 	}
-	
+
 	private function chooseVersion()
 	{
-		$sForm = 
+		$sForm =
 			'<h1 class="success">Installation of '.APP_NAME.'</h1>'.
 			'<p>1. Please select the version to install :</p>'.
 			'<div class="form-check">'.
@@ -852,7 +855,7 @@ class Install
 				'clik.nodeValue = "show(\"buttons\");hide(\"divMaster\");show(\"divDev\");";'.PHP_EOL.
 				'document.getElementById("versionDev").setAttributeNode(clik);'.PHP_EOL.
 				// Button Master
-				'clik = document.createAttribute("onclick");'.PHP_EOL.				
+				'clik = document.createAttribute("onclick");'.PHP_EOL.
 				'clik.nodeValue = "doIt(\"master\");";'.PHP_EOL.
 				'document.getElementById("btnMaster").setAttributeNode(clik);'.PHP_EOL.
 				// Button Dev
@@ -860,7 +863,7 @@ class Install
 				'clik.nodeValue = "doIt(\"dev\");";'.PHP_EOL.
 				'document.getElementById("btnDev").setAttributeNode(clik);'.PHP_EOL.
 			'</script>';
-			
+
 		$sHTML = str_replace('%CONTENT%', $sMsg.$sForm, self::getHTMLPage());
 		die($sHTML);
 
@@ -880,10 +883,10 @@ class Install
 				// Try to download
 				$aeDownload = new \MarkNotes\Download(APP_NAME);
 				$aeDownload->debugMode(DEBUG);
-				
+
 				$url = ((static::$version=='dev') ? URL_DEV : URL_MASTER);
 				$aeDownload->setURL($url);
-				
+
 				$aeDownload->setFileName(static::$Zip);
 				$wReturn = $aeDownload->download();
 
@@ -897,7 +900,7 @@ class Install
 
 			unset($aeDownload);
 		} // if (!self::zipExists())
-			
+
 		if (!self::zipExists()) {
 			// The download has failed
 			if (($wReturn == 0) && ($sErrorMsg == '')) {
@@ -907,7 +910,7 @@ class Install
 		} else {
 			// The package ZIP file is there...
 			if (self::unzip()) {
-				if (self::finalize()) {	
+				if (self::finalize()) {
 					self::showPostInstall();
 				}
 			}
@@ -931,7 +934,7 @@ class Install
 /***********************
  ***** Entry point *****
  **********************/
- 
+
 	$_GET = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
 	$version = strtolower($_GET['version']??'');
 	if(!in_array($version, array('dev','master'))) {
