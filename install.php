@@ -35,25 +35,25 @@ class Helpers
 	public static function setDebuggingMode(bool $bOnOff, string $folder = '') : bool
 	{
 		if ($bOnOff) {
-			ini_set("display_errors", "1");
-			ini_set("display_startup_errors", "1");
-			ini_set("html_errors", "1");
-			ini_set("docref_root", "http://www.php.net/");
+			ini_set('display_errors', '1');
+			ini_set('display_startup_errors', '1');
+			ini_set('html_errors', '1');
+			ini_set('docref_root', 'http://www.php.net/');
 
 			// Log php errors in the php_errors.log file
-			if (trim($folder) =='') {
+			if (trim($folder) == '') {
 				$folder = $_SERVER['SCRIPT_FILENAME'] ?? __FILE__;
-				$folder = str_replace('/', DS, dirname($folder)).DS;
+				$folder = str_replace('/', DS, dirname($folder)) . DS;
 			}
 
-			ini_set('error_log', $folder.'php_errors.log');
+			ini_set('error_log', $folder . 'php_errors.log');
 
 			ini_set(
-				"error_prepend_string",
+				'error_prepend_string',
 				"<div style='background-color:yellow;border:1px solid red;padding:5px;'>"
 			);
 
-			ini_set("error_append_string", "</div>");
+			ini_set('error_append_string', '</div>');
 
 			error_reporting(E_ALL);
 		} else {
@@ -64,34 +64,33 @@ class Helpers
 	}
 
 	/**
-	* Return the current URL
-	*
-	* @return type string
-	*/
+	 * Return the current URL
+	 *
+	 * @return type string
+	 */
 	public static function getCurrentURL() : string
 	{
-
 		$ssl = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on');
 		$protocol = 'http';
 		// SERVER_PROTOCOL isn't set when the script is fired through a php-cli
 		if (isset($_SERVER['SERVER_PROTOCOL'])) {
 			$spt = strtolower($_SERVER['SERVER_PROTOCOL']);
-			$protocol = substr($spt, 0, strpos($spt, '/')) . (($ssl)?'s':'');
+			$protocol = substr($spt, 0, strpos($spt, '/')) . (($ssl) ? 's' : '');
 		}
 
 		$port = '80';
 		// SERVER_PORT isn't set when the script is fired through a php-cli
 		if (isset($_SERVER['SERVER_PORT'])) {
 			$port = $_SERVER['SERVER_PORT'];
-			$port = ((!$ssl && $port == '80') || ($ssl && $port == '443')) ? '' : ':'.$port;
+			$port = ((!$ssl && $port == '80') || ($ssl && $port == '443')) ? '' : ':' . $port;
 		}
 
 		$host =
 		(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '');
 
-		$host = isset($host) ? rtrim(str_replace(DS, '/', $host), '/') : $_SERVER['SERVER_NAME'].$port;
+		$host = isset($host) ? rtrim(str_replace(DS, '/', $host), '/') : $_SERVER['SERVER_NAME'] . $port;
 
-		$return = rtrim($protocol.'://'.$host.dirname($_SERVER['PHP_SELF']),'/').'/';
+		$return = rtrim($protocol . '://' . $host . dirname($_SERVER['PHP_SELF']), '/') . '/';
 
 		return $return;
 	}
@@ -100,12 +99,12 @@ class Helpers
 class Files
 {
 	/**
-	* Recursively move files from one directory to another
-	* @link : https://ben.lobaugh.net/blog/864/php-5-recursively-move-or-copy-files
-	*
-	* @param String $src - Source of files being moved
-	* @param String $dest - Destination of files being moved
-	*/
+	 * Recursively move files from one directory to another
+	 * @link : https://ben.lobaugh.net/blog/864/php-5-recursively-move-or-copy-files
+	 *
+	 * @param String $src  - Source of files being moved
+	 * @param String $dest - Destination of files being moved
+	 */
 	public function rmove(string $src, string $dest) : bool
 	{
 		// If source is not a directory stop processing
@@ -139,14 +138,14 @@ class Files
 	}
 
 	/**
-	* Remove recursively a folder
-	*/
+	 * Remove recursively a folder
+	 */
 	public function rrmdir(string $dir)
 	{
 		if (is_dir($dir)) {
 			$files = scandir($dir);
 			foreach ($files as $file) {
-				if ($file != "." && $file != "..") {
+				if ($file != '.' && $file != '..') {
 					self::rrmdir("$dir/$file");
 				}
 			}
@@ -157,11 +156,11 @@ class Files
 	}
 
 	/**
-	* Remove file's extension
-	*
-	* @param  string $filename 	The filename ("file.zip")
-	* @return string			The name without extension ("file")
-	*/
+	 * Remove file's extension
+	 *
+	 * @param  string $filename The filename ("file.zip")
+	 * @return string The name without extension ("file")
+	 */
 	public static function removeExtension(string $filename) : string
 	{
 		// Correctly handle double extension
@@ -173,7 +172,7 @@ class Files
 			$extension = array_pop($arr);
 		}
 
-		return str_replace('.'.$extension, '', $filename);
+		return str_replace('.' . $extension, '', $filename);
 	}
 
 	/**
@@ -186,7 +185,7 @@ class Files
 		if (is_dir($folder)) {
 			try {
 				$fi = new \FilesystemIterator($folder, \FilesystemIterator::SKIP_DOTS);
-				$wCount =  iterator_count($fi);
+				$wCount = iterator_count($fi);
 			} catch (\Exception $e) {
 			}
 		}
@@ -195,16 +194,15 @@ class Files
 	}
 
 	/**
-	* Be sure that every folder is well with chmod 755 and files with 644
-	* @param type $directory
-	* @param type $arrIgnore
-	*/
-	public function resetPermissions($directory, $arrIgnore = array('.','..'))
+	 * Be sure that every folder is well with chmod 755 and files with 644
+	 * @param type $directory
+	 * @param type $arrIgnore
+	 */
+	public function resetPermissions($directory, $arrIgnore = ['.', '..'])
 	{
-
 		// Check if the path exists
-		if (!file_exists ($directory)) {
-			return(false);
+		if (!file_exists($directory)) {
+			return false;
 		}
 
 		// Make sure that /aesecure has 0755 rights.
@@ -215,40 +213,35 @@ class Files
 		$handle = opendir($directory);
 
 		if ($handle) {
-
-		  while (false !== ($file = readdir($handle))) {
-
-			 if (!(in_array($file, $arrIgnore))) {
-
-				// Process subfolders
-				if (is_dir($directory.DS.$file)) {
-					 self::resetPermissions($directory.'/'.$file,$arrIgnore);
-				 }
-
-				// Get current chmod
-				$fperm=substr(sprintf('%o', (fileperms($directory.DS.$file))),-4);
-
-				// Now, change chmod if needed
-				if (is_dir($directory.DS.$file)) {
-					if ($fperm!=='0755') {
-						@chmod($directory.DS.$file, 0755);
+			while (false !== ($file = readdir($handle))) {
+				if (!(in_array($file, $arrIgnore))) {
+					// Process subfolders
+					if (is_dir($directory . DS . $file)) {
+						self::resetPermissions($directory . '/' . $file, $arrIgnore);
 					}
-				} else {
-					// It's a file
-					if ($fperm!=='0644') {
-						@chmod($directory.DS.$file, 0644);
-					}
-				} // if (is_dir($directory.DS.$file))
 
-			 } // if (!(in_array($file, $arrIgnore)))
+					// Get current chmod
+					$fperm = substr(sprintf('%o', (fileperms($directory . DS . $file))), -4);
 
-		  } // while
+					// Now, change chmod if needed
+					if (is_dir($directory . DS . $file)) {
+						if ($fperm !== '0755') {
+							@chmod($directory . DS . $file, 0755);
+						}
+					} else {
+						// It's a file
+						if ($fperm !== '0644') {
+							@chmod($directory . DS . $file, 0644);
+						}
+					} // if (is_dir($directory.DS.$file))
+				} // if (!(in_array($file, $arrIgnore)))
+			} // while
 
 		  closedir($handle);
-
 		} // if ($handle)
+	}
 
-	} // function SetCorrectPermissions()
+	// function SetCorrectPermissions()
 }
 
 class Download
@@ -280,8 +273,8 @@ class Download
 			// A debug.log file will be created in
 			// the folder of the calling script
 			$folder = $_SERVER['SCRIPT_FILENAME'] ?? __FILE__;
-			$folder = str_replace('/', DS, dirname($folder)).DS;
-			static::$sDebugFileName = $folder.'debug.log';
+			$folder = str_replace('/', DS, dirname($folder)) . DS;
+			static::$sDebugFileName = $folder . 'debug.log';
 		}
 	}
 
@@ -307,7 +300,7 @@ class Download
 	 */
 	private function iscURLEnabled() : bool
 	{
-		return ( (!function_exists("curl_init") && !function_exists("curl_setopt") && !function_exists("curl_exec") && !function_exists("curl_close")) ? false : true);
+		return  (!function_exists('curl_init') && !function_exists('curl_setopt') && !function_exists('curl_exec') && !function_exists('curl_close')) ? false : true;
 	}
 
 	/**
@@ -317,18 +310,18 @@ class Download
 	private function removeIfNull()
 	{
 		if (file_exists(static::$sFileName)) {
-			if (filesize(static::$sFileName)<1000) {
+			if (filesize(static::$sFileName) < 1000) {
 				unlink(static::$sFileName);
 			}
 		}
 	}
 
 	/**
-	* Download the application package ZIP file
-	* @param type $url
-	* @param type $file
-	* @return string
-	*/
+	 * Download the application package ZIP file
+	 * @param  type   $url
+	 * @param  type   $file
+	 * @return string
+	 */
 	public function download() : int
 	{
 		$wError = 0;
@@ -340,7 +333,7 @@ class Download
 			$fp = @fopen(static::$sFileName, 'w');
 
 			if (!$fp) {
-				throw new Exception(APP_NAME." - Could not open the file!");
+				throw new Exception(APP_NAME . ' - Could not open the file!');
 			}
 
 			if (!file_exists(static::$sFileName)) {
@@ -350,7 +343,7 @@ class Download
 				@chmod(static::$sFileName, 0644);
 			}
 
-			if ($wError===0) {
+			if ($wError === 0) {
 				// Ok, try to download the file
 
 				$ch = curl_init(static::$sSourceURL);
@@ -364,7 +357,7 @@ class Download
 					if (!curl_setopt($ch, CURLOPT_URL, static::$sSourceURL)) {
 						fclose($fp);
 						curl_close($ch);
-						$wError=self::ERROR_CURL;
+						$wError = self::ERROR_CURL;
 					} else {
 						// Download
 
@@ -406,12 +399,12 @@ class Download
 
 			// Use a context to be able to define a timeout
 			$context = stream_context_create(
-				array('http'=>array('timeout'=>self::CURL_TIMEOUT))
+				['http' => ['timeout' => self::CURL_TIMEOUT]]
 			);
 			// Get the content if fopen() is enabled
 			$content = @fopen(static::$sSourceURL, 'r', false, $context);
 
-			if ($content!=='') {
+			if ($content !== '') {
 				@file_put_contents(static::$sFileName, $content);
 			}
 
@@ -431,16 +424,16 @@ class Download
 	public function getErrorMessage(int $code) : string
 	{
 		$sReturn =
-			'<p>Your system configuration doesn\'t allow to '.
-			'download the installation package.</p>'.
-			'<p>Please click '.
-			'<a href="'.static::$sSourceURL.'">here</a> to '.
-			'manually download the package, then open your '.
-			'FTP client and send the downloaded file to your '.
-			'website folder.</p>'.
-			'<p>Once this is done, just refresh this page.</p>'.
-			'<p><em>Note : the filename should be '.
-			static::$sFileName.'</em></p>';
+			'<p>Your system configuration doesn\'t allow to ' .
+			'download the installation package.</p>' .
+			'<p>Please click ' .
+			'<a href="' . static::$sSourceURL . '">here</a> to ' .
+			'manually download the package, then open your ' .
+			'FTP client and send the downloaded file to your ' .
+			'website folder.</p>' .
+			'<p>Once this is done, just refresh this page.</p>' .
+			'<p><em>Note : the filename should be ' .
+			static::$sFileName . '</em></p>';
 
 		return $sReturn;
 	}
@@ -493,7 +486,7 @@ class Zip
 			}
 
 			// Do it, unzip
-			$zip = new \ZipArchive;
+			$zip = new \ZipArchive();
 
 			try {
 				@set_time_limit(0);
@@ -522,31 +515,31 @@ class Zip
 	public function getErrorMessage(int $code) : string
 	{
 		$sReturn = '';
-		if ($code==self::ERROR_ZIP_ARCHIVE) {
+		if ($code == self::ERROR_ZIP_ARCHIVE) {
 			$sReturn =
 			'<p>Sorry but your system configuration has not loaded ' .
-			'the PHP ZipArchive library so it\'s impossible to unzip '.
-			'the '.static::$sZIPFileName.' file.</p>'.
-			'<p>For this reason, you\'ll need to do this yourself by '.
-			'unzipping the file on your local machine and send back '.
-			'the unzipped folder to your FTP site.</p>'.
-			'<p>Finally go back to your browser and refresh this '.
+			'the PHP ZipArchive library so it\'s impossible to unzip ' .
+			'the ' . static::$sZIPFileName . ' file.</p>' .
+			'<p>For this reason, you\'ll need to do this yourself by ' .
+			'unzipping the file on your local machine and send back ' .
+			'the unzipped folder to your FTP site.</p>' .
+			'<p>Finally go back to your browser and refresh this ' .
 			'so the installation process can continue.</p>';
-		} elseif ($code==self::ERROR_UNWRITABLE_FOLDER) {
+		} elseif ($code == self::ERROR_UNWRITABLE_FOLDER) {
 			$sReturn =
-			'<p>Your website root folder is write protected, making impossible to create the '.static::$sFolderName.' folder.</p>'.
-			'<p>Please adjust the permissions (chmod) of your root folder.</p>'.
-			'<p>Finally go back to your browser and refresh this '.
+			'<p>Your website root folder is write protected, making impossible to create the ' . static::$sFolderName . ' folder.</p>' .
+			'<p>Please adjust the permissions (chmod) of your root folder.</p>' .
+			'<p>Finally go back to your browser and refresh this ' .
 			'so the installation process can continue.</p>';
-		} elseif ($code==self::ERROR_ZIP_FAILED) {
+		} elseif ($code == self::ERROR_ZIP_FAILED) {
 			$sReturn =
-			'<p>The file '.static::$sZIPFileName.' seems to be '.
-			'corrupt; please remove the file and try again.</p>'.
-			'<p>If the problem still occurs after severall tries '.
-			'you\'ll need to unzip the file yourself by '.
-			'unzipping the file on your local machine and '.
-			'send back the unzipped folder to your FTP site.</p>'.
-			'<p>Finally go back to your browser and refresh this '.
+			'<p>The file ' . static::$sZIPFileName . ' seems to be ' .
+			'corrupt; please remove the file and try again.</p>' .
+			'<p>If the problem still occurs after severall tries ' .
+			'you\'ll need to unzip the file yourself by ' .
+			'unzipping the file on your local machine and ' .
+			'send back the unzipped folder to your FTP site.</p>' .
+			'<p>Finally go back to your browser and refresh this ' .
 			'so the installation process can continue.</p>';
 		}
 
@@ -583,15 +576,15 @@ class Install
 		// The zip will be downloaded and stored in the folder
 		// where this install.php script is placed.
 		static::$sCurrentFolder = $_SERVER['SCRIPT_FILENAME'] ?? __FILE__;
-		static::$sCurrentFolder = str_replace('/', DS, dirname(static::$sCurrentFolder)).DS;
+		static::$sCurrentFolder = str_replace('/', DS, dirname(static::$sCurrentFolder)) . DS;
 
 		// Target filename (f.i. /public_html/marknotes/master.zip
-		$url = ((static::$version=='dev') ? URL_DEV : URL_MASTER);
-		static::$Zip = static::$sCurrentFolder.basename($url);
+		$url = ((static::$version == 'dev') ? URL_DEV : URL_MASTER);
+		static::$Zip = static::$sCurrentFolder . basename($url);
 
 		// Folder where the application should be installed
-		$folder = ((static::$version=='dev') ? FOLDER_NAME_DEV : FOLDER_NAME_MASTER);
-		static::$sApplicationFolder = self::$sCurrentFolder.$folder.DS;
+		$folder = ((static::$version == 'dev') ? FOLDER_NAME_DEV : FOLDER_NAME_MASTER);
+		static::$sApplicationFolder = self::$sCurrentFolder . $folder . DS;
 
 		return true;
 	}
@@ -605,11 +598,11 @@ class Install
 		$sPage .= '<meta charset="utf-8"/>';
 		$sPage .= '<meta name="viewport" content="width=device-width, initial-scale=1">';
 		$sPage .= '<meta name="robots" content="noindex, nofollow">';
-		$sPage .= '<title>'.APP_NAME.' (c) Christophe Avonture</title>';
+		$sPage .= '<title>' . APP_NAME . ' (c) Christophe Avonture</title>';
 		$sPage .= '<style>body{font-size:1em;margin:40px auto;padding-top:20px;width:50%;}h2{font-size:0.8em;}p{font-family:Arial;}pre{padding:20px;white-space:pre-line;line-height:1.5em;border-radius:10px;background-color: rgb(194, 139, 137) !important;}.failure{color:red;}.success{color:green;}</style>';
 		$sPage .= '</head>';
 		$sPage .= '<body>';
-		$sPage .= '<img src="'.LOGO.'"/>';
+		$sPage .= '<img src="' . LOGO . '"/>';
 		$sPage .= '<div class="main">';
 		$sPage .= '%CONTENT%';
 		$sPage .= '</div>';
@@ -622,13 +615,13 @@ class Install
 	private function getErrorPHPVersion() : string
 	{
 		$sReturn =
-		'<h2>Old PHP version (error #'.PHP_MIN_VERSION.')</h2>'.
-		'<p>Sorry, the current version of PHP that is '.
-		'running on your server is '.phpversion().'. '.
-		APP_NAME.' requires at least PHP '.PHP_MIN_VERSION.' '.
-		'or above.</p>'.
-		'<p>Unless you can use the required version of PHP, you\'ll '.
-		'not be able to use '.APP_NAME.'.</p>';
+		'<h2>Old PHP version (error #' . PHP_MIN_VERSION . ')</h2>' .
+		'<p>Sorry, the current version of PHP that is ' .
+		'running on your server is ' . phpversion() . '. ' .
+		APP_NAME . ' requires at least PHP ' . PHP_MIN_VERSION . ' ' .
+		'or above.</p>' .
+		'<p>Unless you can use the required version of PHP, you\'ll ' .
+		'not be able to use ' . APP_NAME . '.</p>';
 
 		return $sReturn;
 	}
@@ -642,12 +635,12 @@ class Install
 		}
 
 		if (trim($msg) !== '') {
-			$sError .= '<p>'.$msg.'</p>';
+			$sError .= '<p>' . $msg . '</p>';
 		}
 
 		// Get the template and display the error
-		$sError = '<h1 class="failure">An error has occured during the '.
-		'installation of '.APP_NAME.'</h1>'.$sError;
+		$sError = '<h1 class="failure">An error has occured during the ' .
+		'installation of ' . APP_NAME . '</h1>' . $sError;
 
 		$sHTML = str_replace('%CONTENT%', $sError, self::getHTMLPage());
 
@@ -676,8 +669,8 @@ class Install
 	}
 
 	/**
-	* Unzip the package ZIP file
-	*/
+	 * Unzip the package ZIP file
+	 */
 	private function unzip() : bool
 	{
 		$aeZip = new \MarkNotes\Zip();
@@ -692,12 +685,12 @@ class Install
 		unset($aeZip);
 
 		// return True if wReturn is equal to 0 i.e. no error found
-		return ($wReturn == 0);
+		return $wReturn == 0;
 	}
 
 	/**
-	* Once downloaded and unzipped, finalize the installation
-	*/
+	 * Once downloaded and unzipped, finalize the installation
+	 */
 	private function finalize() : bool
 	{
 		$bReturn = true;
@@ -719,9 +712,9 @@ class Install
 		// than one).
 		// If yes => the source folder will be /dist
 		// If no  => the source folder will be /src
-		$srcFolder = static::$sApplicationFolder.'src';
+		$srcFolder = static::$sApplicationFolder . 'src';
 
-		if (is_dir($dist = static::$sApplicationFolder.'dist')) {
+		if (is_dir($dist = static::$sApplicationFolder . 'dist')) {
 			if ($aeFiles->countFiles($dist) > 1) {
 				$srcFolder = $dist;
 			}
@@ -761,7 +754,7 @@ class Install
 		$path = static::$sCurrentFolder;
 
 		// Path to the index.php file
-		$index = $path.'index.php';
+		$index = $path . 'index.php';
 
 		// Derive the URL for the application
 
@@ -777,22 +770,22 @@ class Install
 		// And remove that part to the application folder
 		// so we just keep the name of the folder where the
 		// application has been installed
-		$site = str_replace($sScriptFolder.DS, '', $index);
+		$site = str_replace($sScriptFolder . DS, '', $index);
 
-		$appURL = str_replace(DS, '/', $sURL.$site);
+		$appURL = str_replace(DS, '/', $sURL . $site);
 
 		// Get the template
-		$sMsg = '<h1 class="success">Installation of '.APP_NAME.' '.
-			'is successfull</h1>'.
-			'<p>The application has been successfully installed '.
-			'in the folder '.static::$sCurrentFolder.'.</p>'.
-			'<p>You can use '.APP_NAME.' from now : '.
-			'<a href="'.$appURL.'">'.$appURL.'</a></p>'.
-			'<p><strong>Last thing: clear your browser\'s cache '.
-			'and, if you are using a server cache (or an '.
-			'optimization system on your hosting), don\'t forget'.
-			'to clear the server cache too.</strong></p>'.
-			'<p><em>This '.basename(__FILE__).' installation script '.
+		$sMsg = '<h1 class="success">Installation of ' . APP_NAME . ' ' .
+			'is successfull</h1>' .
+			'<p>The application has been successfully installed ' .
+			'in the folder ' . static::$sCurrentFolder . '.</p>' .
+			'<p>You can use ' . APP_NAME . ' from now : ' .
+			'<a href="' . $appURL . '">' . $appURL . '</a></p>' .
+			'<p><strong>Last thing: clear your browser\'s cache ' .
+			'and, if you are using a server cache (or an ' .
+			'optimization system on your hosting), don\'t forget' .
+			'to clear the server cache too.</strong></p>' .
+			'<p><em>This ' . basename(__FILE__) . ' installation script ' .
 			'has been removed.</em></p>';
 
 		$sHTML = str_replace('%CONTENT%', $sMsg, self::getHTMLPage());
@@ -805,66 +798,66 @@ class Install
 	private function chooseVersion()
 	{
 		$sForm =
-			'<h1 class="success">Installation of '.APP_NAME.'</h1>'.
-			'<p>1. Please select the version to install :</p>'.
-			'<div class="form-check">'.
-				'<input class="form-check-input" type="radio" '.
-				'name="version" id="versionMaster" value="master">&nbsp;'.
-				'<label class="form-check-label" for="versionMaster">'.
-				'Master version'.
-				'</label>'.
-			'</div>'.
-			'<div class="form-check">'.
-				'<input class="form-check-input" type="radio" '.
-				'name="version" id="versionDev" value="development">&nbsp;'.
-				'<label class="form-check-label" for="versionDev">'.
-				'Development version (<strong>can be unstable</strong>)'.
-				'</label>'.
-			'</div>'.
-			'<div id="buttons" style="display:none;">'.
-				'<hr/>'.
-				'<p>2. Then click on the button to launch the installation</p>'.
-				'<div id="divMaster">'.
-					'<button id="btnMaster">Install the <strong>Master</strong> version</button>'.
-				'</div>'.
-				'<div id="divDev" style="display:none;">'.
-					'<button id="btnDev">Install the <strong>Development</strong> version</button>'.
-				'</div>'.
-			'</div>'.
-			'<div id="wait" style="display:none;">'.
-				'<hr/>'.
-				'<p>3. The installation process has been started. Please wait, it will take a few seconds, the time needed to download the package, unzip it and prepare the site.</p>'.
-			'</div>'.
-			'<script>'.
-				'function show(id) {'.PHP_EOL.
-					'document.getElementById(id).style.display="block";'.PHP_EOL.
-				'}'.PHP_EOL.
-				'function hide(id) {'.PHP_EOL.
-					'document.getElementById(id).style.display="none";'.PHP_EOL.
-				'}'.PHP_EOL.
-				'function doIt(version) {'.PHP_EOL.
-					'document.getElementById("wait").style.display="block";'.PHP_EOL.
-					'document.location.search="version="+version;'.
-				'}'.PHP_EOL.
+			'<h1 class="success">Installation of ' . APP_NAME . '</h1>' .
+			'<p>1. Please select the version to install :</p>' .
+			'<div class="form-check">' .
+				'<input class="form-check-input" type="radio" ' .
+				'name="version" id="versionMaster" value="master">&nbsp;' .
+				'<label class="form-check-label" for="versionMaster">' .
+				'Master version' .
+				'</label>' .
+			'</div>' .
+			'<div class="form-check">' .
+				'<input class="form-check-input" type="radio" ' .
+				'name="version" id="versionDev" value="development">&nbsp;' .
+				'<label class="form-check-label" for="versionDev">' .
+				'Development version (<strong>can be unstable</strong>)' .
+				'</label>' .
+			'</div>' .
+			'<div id="buttons" style="display:none;">' .
+				'<hr/>' .
+				'<p>2. Then click on the button to launch the installation</p>' .
+				'<div id="divMaster">' .
+					'<button id="btnMaster">Install the <strong>Master</strong> version</button>' .
+				'</div>' .
+				'<div id="divDev" style="display:none;">' .
+					'<button id="btnDev">Install the <strong>Development</strong> version</button>' .
+				'</div>' .
+			'</div>' .
+			'<div id="wait" style="display:none;">' .
+				'<hr/>' .
+				'<p>3. The installation process has been started. Please wait, it will take a few seconds, the time needed to download the package, unzip it and prepare the site.</p>' .
+			'</div>' .
+			'<script>' .
+				'function show(id) {' . PHP_EOL .
+					'document.getElementById(id).style.display="block";' . PHP_EOL .
+				'}' . PHP_EOL .
+				'function hide(id) {' . PHP_EOL .
+					'document.getElementById(id).style.display="none";' . PHP_EOL .
+				'}' . PHP_EOL .
+				'function doIt(version) {' . PHP_EOL .
+					'document.getElementById("wait").style.display="block";' . PHP_EOL .
+					'document.location.search="version="+version;' .
+				'}' . PHP_EOL .
 				// Click on versionMaster
-				'clik = document.createAttribute("onclick");'.PHP_EOL.
-				'clik.nodeValue = "show(\"buttons\");hide(\"divDev\");show(\"divMaster\");";'.PHP_EOL.
-				'document.getElementById("versionMaster").setAttributeNode(clik);'.PHP_EOL.
+				'clik = document.createAttribute("onclick");' . PHP_EOL .
+				'clik.nodeValue = "show(\"buttons\");hide(\"divDev\");show(\"divMaster\");";' . PHP_EOL .
+				'document.getElementById("versionMaster").setAttributeNode(clik);' . PHP_EOL .
 				// Click on versionDev
-				'clik = document.createAttribute("onclick");'.PHP_EOL.
-				'clik.nodeValue = "show(\"buttons\");hide(\"divMaster\");show(\"divDev\");";'.PHP_EOL.
-				'document.getElementById("versionDev").setAttributeNode(clik);'.PHP_EOL.
+				'clik = document.createAttribute("onclick");' . PHP_EOL .
+				'clik.nodeValue = "show(\"buttons\");hide(\"divMaster\");show(\"divDev\");";' . PHP_EOL .
+				'document.getElementById("versionDev").setAttributeNode(clik);' . PHP_EOL .
 				// Button Master
-				'clik = document.createAttribute("onclick");'.PHP_EOL.
-				'clik.nodeValue = "doIt(\"master\");";'.PHP_EOL.
-				'document.getElementById("btnMaster").setAttributeNode(clik);'.PHP_EOL.
+				'clik = document.createAttribute("onclick");' . PHP_EOL .
+				'clik.nodeValue = "doIt(\"master\");";' . PHP_EOL .
+				'document.getElementById("btnMaster").setAttributeNode(clik);' . PHP_EOL .
 				// Button Dev
-				'clik = document.createAttribute("onclick");'.PHP_EOL.
-				'clik.nodeValue = "doIt(\"dev\");";'.PHP_EOL.
-				'document.getElementById("btnDev").setAttributeNode(clik);'.PHP_EOL.
+				'clik = document.createAttribute("onclick");' . PHP_EOL .
+				'clik.nodeValue = "doIt(\"dev\");";' . PHP_EOL .
+				'document.getElementById("btnDev").setAttributeNode(clik);' . PHP_EOL .
 			'</script>';
 
-		$sHTML = str_replace('%CONTENT%', $sMsg.$sForm, self::getHTMLPage());
+		$sHTML = str_replace('%CONTENT%', $sMsg . $sForm, self::getHTMLPage());
 		die($sHTML);
 
 		return;
@@ -884,7 +877,7 @@ class Install
 				$aeDownload = new \MarkNotes\Download(APP_NAME);
 				$aeDownload->debugMode(DEBUG);
 
-				$url = ((static::$version=='dev') ? URL_DEV : URL_MASTER);
+				$url = ((static::$version == 'dev') ? URL_DEV : URL_MASTER);
 				$aeDownload->setURL($url);
 
 				$aeDownload->setFileName(static::$Zip);
@@ -904,7 +897,7 @@ class Install
 		if (!self::zipExists()) {
 			// The download has failed
 			if (($wReturn == 0) && ($sErrorMsg == '')) {
-				$sErrorMsg= 'The file '.static::$Zip.' is missing';
+				$sErrorMsg = 'The file ' . static::$Zip . ' is missing';
 			}
 			self::showErrorPage($wReturn, $sErrorMsg);
 		} else {
@@ -927,6 +920,7 @@ class Install
 		} else {
 			self::startInstallation();
 		}
+
 		return true;
 	}
 }
@@ -936,8 +930,8 @@ class Install
  **********************/
 
 	$_GET = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
-	$version = strtolower($_GET['version']??'');
-	if(!in_array($version, array('dev','master'))) {
+	$version = strtolower($_GET['version'] ?? '');
+	if (!in_array($version, ['dev', 'master'])) {
 		$version = '';
 	}
 
