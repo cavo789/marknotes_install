@@ -1,3 +1,5 @@
+![banner](image/banner.jpg)
+
 # Marknotes – Installation script
 
 > Do you want to very quickly install [marknotes](https://github.com/cavo789/marknotes)? This script is for you
@@ -28,7 +30,7 @@ Note: this script will ask you which version to download, the `master` version o
 
 ## Remarks
 
-This script will work on almost all web hosters since they’ve enabled the `curl` and `ZipArchive` Apache modules. If one of them is not loaded (*you can verify with `phpinfo`*), the script can’t work and then you’ll need to install marknotes manually (see point [3.2 – Hard way](https://github.com/cavo789/marknotes#32-hard-way)).
+This script will work on almost all web hosters since they’ve enabled the `curl` and `ZipArchive` Apache modules. If one of them is not loaded (_you can verify with `phpinfo`_), the script can’t work and then you’ll need to install marknotes manually (see point [3.2 – Hard way](https://github.com/cavo789/marknotes#32-hard-way)).
 
 ## Contribute
 
