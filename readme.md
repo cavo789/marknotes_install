@@ -1,6 +1,6 @@
-![banner](image/banner.jpg)
-
 # Marknotes – Installation script
+
+![banner](./banner.svg)
 
 > Do you want to very quickly install [marknotes](https://github.com/cavo789/marknotes)? This script is for you
 
