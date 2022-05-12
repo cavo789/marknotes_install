@@ -4,7 +4,7 @@
 
 > Do you want to very quickly install [marknotes](https://github.com/cavo789/marknotes)? This script is for you
 
-[![Logo](https://raw.githubusercontent.com/cavo789/marknotes/master/src/assets/images/marknotes.png)](https://www.marknotes.fr)
+![Logo](https://raw.githubusercontent.com/cavo789/marknotes/master/src/assets/images/marknotes.png)
 
 ## Description
 
